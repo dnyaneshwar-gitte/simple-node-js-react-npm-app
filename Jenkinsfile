@@ -78,7 +78,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "dnyaneshwar535/node-react-app"
-        TAG = "${BUILD_NUMBER}"
+        TAG = "${BRANCH_NAME}-${BUILD_NUMBER}"
     }
 
     stages {
@@ -111,9 +111,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-creds')
-                        docker.image("${DOCKER_IMAGE}:${TAG}").push()
-                    
+                    retry(2) {
+                        docker.withRegistry('https://index.docker.io/v1/', 'docker-creds') {
+                            docker.image("${DOCKER_IMAGE}:${TAG}").push()
+                        }
+                    }
                 }
             }
         }
