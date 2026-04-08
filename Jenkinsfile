@@ -104,16 +104,18 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %DOCKER_IMAGE%:%TAG% .'
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE}:${TAG}")
+                }
             }
         }
-
+        
         stage('Push Docker Image') {
             steps {
                 script {
-                    retry(2) {
+                    retry(3) {
                         docker.withRegistry('https://index.docker.io/v1/', 'docker-creds') {
-                            docker.image("${DOCKER_IMAGE}:${TAG}").push()
+                            dockerImage.push()
                         }
                     }
                 }
