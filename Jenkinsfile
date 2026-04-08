@@ -110,7 +110,11 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                bat 'docker push %DOCKER_IMAGE%:%TAG%'
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
+                        docker.image("${DOCKER_IMAGE}:${TAG}").push()
+                    }
+                }
             }
         }
         stage('Deploy Staging') {
